@@ -1,0 +1,1153 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Báo Cáo: Khóa Tồn Kho Thời Gian Thực - Nhóm 2</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* =========================================
+       1. GLOBAL & RESET 
+       ========================================= */
+      :root {
+        --bg: #f8fafc;
+        --surface: #ffffff;
+        --text-main: #0f172a;
+        --text-muted: #64748b;
+        --primary: #000000;
+        --accent: #2563eb;
+        --border: #e2e8f0;
+        --radius: 16px;
+        --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        --shadow-lg: 0 20px 40px -4px rgba(0, 0, 0, 0.08);
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: "Plus Jakarta Sans", sans-serif;
+      }
+
+      body {
+        background: var(--bg);
+        color: var(--text-main);
+        height: 100vh;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* =========================================
+       2. HEADER & NAVIGATION 
+       ========================================= */
+      header {
+        padding: 20px 48px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        z-index: 10;
+      }
+
+      .logo-group {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .badge {
+        background: var(--text-main);
+        color: #fff;
+        padding: 6px 16px;
+        border-radius: 100px;
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+      }
+
+      .slide-counter {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--text-muted);
+      }
+
+      /* =========================================
+       3. SLIDE DECK 
+       ========================================= */
+      .deck {
+        flex: 1;
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 32px 48px;
+      }
+
+      .slide {
+        position: absolute;
+        width: 100%;
+        max-width: 1400px;
+        height: 100%;
+        max-height: 800px;
+        background: var(--surface);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow-lg);
+        padding: 48px 56px;
+        display: none;
+        flex-direction: column;
+        opacity: 0;
+        transform: scale(0.98) translateY(10px);
+        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .slide.active {
+        display: flex;
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+
+      /* Typography */
+      .title-wrapper {
+        margin-bottom: 32px;
+      }
+      .subtitle {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--accent);
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        margin-bottom: 8px;
+      }
+      .title {
+        font-size: 40px;
+        font-weight: 800;
+        color: var(--text-main);
+        letter-spacing: -1px;
+      }
+      .content-area {
+        flex: 1;
+        display: flex;
+        gap: 40px;
+        overflow-y: auto;
+      }
+
+      /* =========================================
+       4. LAYOUTS & CARDS 
+       ========================================= */
+      .col-40 {
+        width: 40%;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+      .col-60 {
+        width: 60%;
+        display: flex;
+        flex-direction: column;
+      }
+      .col-33 {
+        width: 33.333%;
+      }
+      .row {
+        display: flex;
+        gap: 32px;
+        width: 100%;
+        height: 100%;
+      }
+
+      .card {
+        background: #f8fafc;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 28px;
+      }
+
+      .card h3 {
+        font-size: 20px;
+        font-weight: 800;
+        margin-bottom: 16px;
+        color: var(--text-main);
+      }
+      .card p {
+        font-size: 16px;
+        line-height: 1.7;
+        color: var(--text-muted);
+      }
+
+      /* =========================================
+       5. IMAGE VIEWER 
+       ========================================= */
+      .img-wrapper {
+        width: 100%;
+        height: 100%;
+        background: #0f172a;
+        border-radius: 12px;
+        overflow: hidden;
+        position: relative;
+        cursor: zoom-in;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+        transition: transform 0.2s;
+      }
+
+      .img-wrapper:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+      }
+
+      .img-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        padding: 16px;
+      }
+
+      .zoom-hint {
+        position: absolute;
+        bottom: 16px;
+        right: 16px;
+        background: rgba(255, 255, 255, 0.9);
+        color: #000;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+        pointer-events: none;
+      }
+
+      /* LIGHTBOX (Phóng to ảnh) */
+      #lightbox {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.95);
+        z-index: 9999;
+        display: none;
+        justify-content: center;
+        align-items: center;
+        cursor: zoom-out;
+        opacity: 0;
+        transition: opacity 0.3s;
+      }
+      #lightbox img {
+        max-width: 95vw;
+        max-height: 95vh;
+        object-fit: contain;
+        border-radius: 8px;
+      }
+
+      /* =========================================
+       6. INTERACTIVE DEMO UI 
+       ========================================= */
+      .demo-container {
+        background: #0f172a;
+        border-radius: 16px;
+        padding: 40px;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 32px;
+      }
+      .stats-row {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+      }
+      .stat-box {
+        background: #1e293b;
+        padding: 24px;
+        border-radius: 12px;
+        text-align: center;
+        border-top: 4px solid #334155;
+      }
+      .stat-box.blue {
+        border-top-color: #3b82f6;
+      }
+      .stat-box.orange {
+        border-top-color: #f59e0b;
+      }
+      .stat-box.green {
+        border-top-color: #10b981;
+      }
+      .stat-box p {
+        font-size: 14px;
+        font-weight: 700;
+        color: #94a3b8;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+      }
+      .stat-box h2 {
+        font-size: 48px;
+        font-weight: 800;
+        color: #fff;
+      }
+
+      .control-row {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        justify-content: center;
+        background: #1e293b;
+        padding: 20px;
+        border-radius: 12px;
+      }
+      .control-row input {
+        width: 100px;
+        padding: 12px;
+        font-size: 18px;
+        font-weight: 700;
+        text-align: center;
+        border-radius: 8px;
+        border: 2px solid #334155;
+        background: #0f172a;
+        color: white;
+      }
+      .btn {
+        padding: 14px 24px;
+        border-radius: 8px;
+        font-size: 15px;
+        font-weight: 700;
+        cursor: pointer;
+        border: none;
+        transition: all 0.2s;
+        color: white;
+      }
+      .btn:active {
+        transform: scale(0.96);
+      }
+      .btn-lock {
+        background: #f59e0b;
+        color: #000;
+      }
+      .btn-lock:hover {
+        background: #fbbf24;
+      }
+      .btn-confirm {
+        background: #10b981;
+      }
+      .btn-confirm:hover {
+        background: #34d399;
+      }
+      .btn-release {
+        background: #ef4444;
+      }
+      .btn-release:hover {
+        background: #f87171;
+      }
+
+      .log-area {
+        background: #020617;
+        border: 1px solid #334155;
+        border-radius: 8px;
+        padding: 16px;
+        height: 160px;
+        overflow-y: auto;
+        font-family: "Courier New", Courier, monospace;
+        font-size: 14px;
+        line-height: 1.6;
+      }
+
+      /* =========================================
+       7. FOOTER CONTROLS 
+       ========================================= */
+      footer {
+        padding: 24px 48px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: var(--bg);
+      }
+      .nav-btn {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        color: var(--text-main);
+        padding: 12px 28px;
+        border-radius: 100px;
+        font-size: 15px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: 0.2s;
+        box-shadow: var(--shadow-sm);
+      }
+      .nav-btn:hover:not(:disabled) {
+        border-color: var(--text-main);
+      }
+      .nav-btn:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+        box-shadow: none;
+      }
+      .tip {
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--text-muted);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- LIGHTBOX CONTAINER -->
+    <div id="lightbox" onclick="closeLightbox()">
+      <img id="lightbox-img" src="" alt="Zoomed Diagram" />
+    </div>
+
+    <header>
+      <div class="logo-group">
+        <div class="badge">NHÓM 2</div>
+        <div style="font-weight: 700; font-size: 16px">
+          Phân Hệ Khóa Tồn Kho (Real-time Lock)
+        </div>
+      </div>
+      <div class="slide-counter" id="progress">1 / 6</div>
+    </header>
+
+    <div class="deck">
+      <!-- SLIDE 1: GIỚI THIỆU -->
+      <div class="slide active">
+        <div class="title-wrapper">
+          <div class="subtitle">Tổng Quan Nghiệp Vụ</div>
+          <div class="title">Bài Toán Tồn Kho Bán Lẻ Đa Kênh</div>
+        </div>
+        <div class="content-area row">
+          <div class="col-60">
+            <div class="card" style="height: 100%">
+              <h3>🎯 Thách thức "Flash Sale"</h3>
+              <p style="margin-bottom: 24px">
+                Khi hàng ngàn người cùng bấm mua một sản phẩm:<br /><br />
+                ❌ <b>Trừ kho ngay lập tức:</b> Khách không thanh toán, hàng bị
+                giam, người khác không mua được (Mất doanh thu).<br /><br />
+                ❌ <b>Thanh toán xong mới trừ:</b> Nhiều người cùng thanh toán
+                thành công 1 món hàng cuối cùng, dẫn đến bán lố hàng
+                (Over-selling).
+              </p>
+              <div
+                style="
+                  background: #eff6ff;
+                  padding: 24px;
+                  border-radius: 12px;
+                  border-left: 6px solid var(--accent);
+                "
+              >
+                <h4 style="font-size: 18px; margin-bottom: 8px; color: #1e3a8a">
+                  Công thức vàng của Nhóm 2:
+                </h4>
+                <p
+                  style="
+                    font-size: 20px;
+                    font-weight: 800;
+                    color: var(--accent);
+                  "
+                >
+                  Tồn Khả Dụng = Tồn Kho Vật Lý - Tổng Đang Khóa
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="col-40">
+            <div class="card">
+              <h3>🔒 Cơ chế 15 Phút</h3>
+              <p>
+                Khách bấm mua ➔ Hệ thống khóa tạm số lượng khả dụng trong 15
+                phút.
+              </p>
+            </div>
+            <div class="card">
+              <h3>✅ Xác nhận (Confirm)</h3>
+              <p>
+                Khách thanh toán thành công ➔ Hệ thống tự động trừ vào
+                <b>Tồn kho vật lý</b> thật sự.
+              </p>
+            </div>
+            <div class="card">
+              <h3>⏳ Giải phóng (Release)</h3>
+              <p>
+                Khách hủy đơn hoặc hết 15 phút ➔ Tự động nhả hàng ra thị trường
+                cho người khác mua.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SLIDE 2: ERD CÓ CLICK TO ZOOM -->
+      <div class="slide">
+        <div class="title-wrapper">
+          <div class="subtitle">Mô Hình Dữ Liệu (Chuẩn 3NF)</div>
+          <div class="title">Sơ Đồ Thực Thể Liên Kết (ERD)</div>
+        </div>
+
+        <!-- Đã thêm overflow-y: hidden để khóa cuộn cả khung -->
+        <div class="content-area row" style="overflow-y: hidden">
+          <!-- CỘT TRÁI: Thêm scroll độc lập (chỉ cuộn phần chữ) -->
+          <div
+            class="col-40"
+            style="
+              overflow-y: auto;
+              padding-right: 16px;
+              height: 100%;
+              padding-bottom: 20px;
+              scrollbar-width: thin;
+            "
+          >
+            <div class="card" style="margin-bottom: 20px">
+              <h3 style="margin-bottom: 12px">🗄️ Cấu trúc 4 Bảng</h3>
+              <p style="font-size: 15px">
+                Tách bạch <b>Tồn kho vật lý</b> (Product) và
+                <b>Phiên giữ chỗ</b> (StockHold) để không làm bẩn dữ liệu
+                gốc.<br /><br />
+                <code>status</code> và <code>expiresAt</code> được cô lập hoàn
+                toàn tại StockHold giúp quản lý logic 15 phút dễ dàng.
+              </p>
+            </div>
+
+            <div class="card" style="padding: 24px">
+              <h3 style="margin-bottom: 16px; font-size: 18px">
+                🔗 Tương tác các mối quan hệ
+              </h3>
+              <ul
+                style="
+                  list-style: none;
+                  padding: 0;
+                  margin: 0;
+                  display: flex;
+                  flex-direction: column;
+                  gap: 14px;
+                "
+              >
+                <li
+                  style="
+                    font-size: 14px;
+                    line-height: 1.6;
+                    color: var(--text-muted);
+                  "
+                >
+                  <strong style="color: var(--text-main)"
+                    >1. Product (1) ➔ StockHold (N)</strong
+                  ><br />
+                  Một sản phẩm có thể phát sinh nhiều lượt tạm khóa (giữ chỗ) từ
+                  các đơn hàng khác nhau cùng lúc trong đợt Flash Sale.
+                </li>
+                <li
+                  style="
+                    font-size: 14px;
+                    line-height: 1.6;
+                    color: var(--text-muted);
+                    background: #eff6ff;
+                    padding: 12px;
+                    border-radius: 8px;
+                    border-left: 4px solid var(--accent);
+                  "
+                >
+                  <strong style="color: var(--accent)"
+                    >2. StockHold (0..1) ➔ StockMovement (1)</strong
+                  ><br />
+                  <i>Tương tác cốt lõi:</i> Phiên khóa tạm chỉ sinh ra 1 dòng
+                  trừ kho thật <b>duy nhất</b> khi khách thanh toán thành công.
+                  Nếu hủy/hết hạn (0), sẽ không có trừ thật. Chặn đứng lỗi trừ
+                  lặp.
+                </li>
+                <li
+                  style="
+                    font-size: 14px;
+                    line-height: 1.6;
+                    color: var(--text-muted);
+                  "
+                >
+                  <strong style="color: var(--text-main)"
+                    >3. Product (1) ➔ StockMovement (N)</strong
+                  ><br />
+                  Mọi sự biến động về số lượng (nhập, trừ thật) của sản phẩm đều
+                  được ghi log để đối soát tài chính.
+                </li>
+                <li
+                  style="
+                    font-size: 14px;
+                    line-height: 1.6;
+                    color: var(--text-muted);
+                  "
+                >
+                  <strong style="color: var(--text-main)"
+                    >4. Warehouse (1) ➔ StockMovement (N)</strong
+                  ><br />
+                  Lệnh xuất/trừ thật luôn được gắn với một kho vật lý cụ thể để
+                  thủ kho biết vị trí lấy hàng đi giao.
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- CỘT PHẢI: Chiều cao full 100%, Đứng im không bị cuộn đi -->
+          <div class="col-60" style="height: 100%">
+            <!-- ẢNH ERD CHÈN VÀO ĐÂY -->
+            <div class="img-wrapper" onclick="openLightbox('erd.drawio.png')">
+              <img src="erd.drawio.png" alt="ERD Diagram" />
+              <div class="zoom-hint">🔍 Click để phóng to</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SLIDE 3: SEQUENCE CÓ CLICK TO ZOOM -->
+      <div class="slide">
+        <div class="title-wrapper">
+          <div class="subtitle">Kiến Trúc Tương Tác</div>
+          <div class="title">Sequence Diagram & API Contract</div>
+        </div>
+        <div class="content-area row">
+          <div class="col-60">
+            <!-- ẢNH SEQUENCE CHÈN VÀO ĐÂY -->
+            <div class="img-wrapper" onclick="openLightbox('sequence.png')">
+              <img src="sequence.png" alt="Sequence Diagram" />
+              <div class="zoom-hint">🔍 Click để phóng to</div>
+            </div>
+          </div>
+          <div class="col-40">
+            <div class="card">
+              <h3>🤝 Hợp đồng API (Contract)</h3>
+              <p style="margin-bottom: 16px">
+                3 endpoint chính giao tiếp với OrderService:
+              </p>
+
+              <div
+                style="
+                  background: #1e293b;
+                  color: #fff;
+                  padding: 16px;
+                  border-radius: 8px;
+                  font-family: monospace;
+                  font-size: 13px;
+                  margin-bottom: 12px;
+                "
+              >
+                <span style="color: #fbbf24">POST</span> /lock<br />
+                Req: { productId, qty }<br />
+                Res: { lockId, expiresAt }
+              </div>
+
+              <div
+                style="
+                  background: #1e293b;
+                  color: #fff;
+                  padding: 16px;
+                  border-radius: 8px;
+                  font-family: monospace;
+                  font-size: 13px;
+                  margin-bottom: 12px;
+                "
+              >
+                <span style="color: #34d399">POST</span> /confirm<br />
+                Req: { lockId }<br />
+                Res: { status: "CONFIRMED" }
+              </div>
+
+              <div
+                style="
+                  background: #1e293b;
+                  color: #fff;
+                  padding: 16px;
+                  border-radius: 8px;
+                  font-family: monospace;
+                  font-size: 13px;
+                "
+              >
+                <span style="color: #f87171">POST</span> /release<br />
+                Req: { lockId }<br />
+                Res: { status: "RELEASED" }
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SLIDE 4: 3 BẪY DỮ LIỆU -->
+      <div class="slide">
+        <div class="title-wrapper">
+          <div class="subtitle">
+            Bảo Vệ Tính Toàn Vẹn Hệ Thống (10% Điểm Rubric)
+          </div>
+          <div class="title">Hóa Giải 03 Bẫy Dữ Tại Thực Chiến</div>
+        </div>
+        <div class="content-area row">
+          <div
+            class="card col-33"
+            style="border-top: 4px solid var(--text-main)"
+          >
+            <h3 style="font-size: 22px">1. Race Condition</h3>
+            <p><b>Rủi ro:</b> Nhiều khách mua cùng lúc ➔ Over-selling.</p>
+            <hr
+              style="
+                border: none;
+                border-top: 1px solid var(--border);
+                margin: 16px 0;
+              "
+            />
+            <p>
+              <b>Giải pháp:</b> Dùng <b>Pessimistic Locking</b> (<code
+                >SELECT FOR UPDATE</code
+              >) tại Database. Giao dịch tới trước khóa row, giao dịch sau phải
+              đợi hoặc bị từ chối.
+            </p>
+          </div>
+
+          <div
+            class="card col-33"
+            style="border-top: 4px solid var(--text-main)"
+          >
+            <h3 style="font-size: 22px">2. Khóa Treo Vĩnh Viễn</h3>
+            <p>
+              <b>Rủi ro:</b> Service sập giữa chừng, hàng bị khóa vĩnh viễn
+              không ai mua được.
+            </p>
+            <hr
+              style="
+                border: none;
+                border-top: 1px solid var(--border);
+                margin: 16px 0;
+              "
+            />
+            <p>
+              <b>Giải pháp:</b> Áp dụng <b>TTL (Time-To-Live)</b> kết hợp
+              <b>Cron Job</b> tự động quét DB mỗi 30s để nhả hàng (EXPIRED) khi
+              quá thời gian.
+            </p>
+          </div>
+
+          <div
+            class="card col-33"
+            style="border-top: 4px solid var(--text-main)"
+          >
+            <h3 style="font-size: 22px">3. Tồn Kho Âm (Retry)</h3>
+            <p>
+              <b>Rủi ro:</b> Mạng lag, Order gọi lệnh trừ kho 2 lần ➔ kho bị âm.
+            </p>
+            <hr
+              style="
+                border: none;
+                border-top: 1px solid var(--border);
+                margin: 16px 0;
+              "
+            />
+            <p>
+              <b>Giải pháp:</b> Tính <b>Idempotency</b>. Lệnh UPDATE check cứng
+              <code>WHERE lockId = :id AND status = 'HOLDING'</code>. Chỉ trừ
+              đúng 1 lần.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- SLIDE 5: WIREFRAME GIAO DIỆN -->
+      <div class="slide">
+        <div class="title-wrapper">
+          <div class="subtitle">Thiết Kế Giao Diện (UI/UX)</div>
+          <div class="title">Wireframe: Bảng Điều Khiển & Cảnh Báo Tồn Kho</div>
+        </div>
+
+        <!-- Khóa cuộn khung chính, thiết lập scroll độc lập -->
+        <div class="content-area row" style="overflow-y: hidden">
+          <!-- CỘT TRÁI: Giải thích 2 màn hình -->
+          <div
+            class="col-40"
+            style="
+              overflow-y: auto;
+              padding-right: 16px;
+              height: 100%;
+              padding-bottom: 20px;
+              scrollbar-width: thin;
+            "
+          >
+            <div
+              class="card"
+              style="margin-bottom: 20px; border-left: 4px solid var(--accent)"
+            >
+              <h3 style="margin-bottom: 12px; font-size: 18px">
+                1️⃣ Bảng Điều Khiển Tồn Kho
+              </h3>
+              <p
+                style="
+                  font-size: 14px;
+                  margin-bottom: 12px;
+                  color: var(--text-main);
+                "
+              >
+                Màn hình tổng quan (Dashboard) dành cho Quản lý / Thủ kho.
+              </p>
+              <ul
+                style="
+                  font-size: 13px;
+                  color: var(--text-muted);
+                  padding-left: 20px;
+                  line-height: 1.7;
+                "
+              >
+                <li>
+                  <b>Thống kê tổng quan:</b> Hiển thị tổng số lượng sản phẩm,
+                  tổng đơn vị tồn kho và số lượng mặt hàng đang chạm ngưỡng
+                  thấp.
+                </li>
+                <li>
+                  <b>Danh sách chi tiết:</b> Bảng dữ liệu liệt kê toàn bộ mặt
+                  hàng kèm trạng thái cơ bản (Còn đủ / Nguy cấp).
+                </li>
+              </ul>
+            </div>
+
+            <div class="card" style="border-left: 4px solid var(--danger)">
+              <h3 style="margin-bottom: 12px; font-size: 18px">
+                2️⃣ Cảnh Báo Tồn Kho Thấp & Hết Hàng
+              </h3>
+              <p
+                style="
+                  font-size: 14px;
+                  margin-bottom: 12px;
+                  color: var(--text-main);
+                "
+              >
+                Màn hình chuyên biệt để xử lý khẩn cấp các mặt hàng cạn kiệt.
+              </p>
+              <ul
+                style="
+                  font-size: 13px;
+                  color: var(--text-muted);
+                  padding-left: 20px;
+                  line-height: 1.7;
+                "
+              >
+                <li>
+                  <b>Phân loại rủi ro:</b> Bóc tách rõ ràng giữa hàng
+                  <i>"Sắp hết"</i> (VD: dưới 50) và hàng <i>"Đã hết"</i> (Tồn =
+                  0).
+                </li>
+                <li>
+                  <b>Định hướng hành động:</b> Nhấn mạnh bằng nhãn
+                  <code>Hết hàng</code> và <code>Nguy cấp</code> để đội ngũ mua
+                  hàng (Purchasing) lập tức lên đơn nhập bổ sung (Restock).
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- CỘT PHẢI: Chứa 2 khung ảnh chia đều không gian -->
+          <div
+            class="col-60"
+            style="
+              display: flex;
+              flex-direction: column;
+              gap: 20px;
+              height: 100%;
+            "
+          >
+            <!-- ẢNH 1: Bảng điều khiển -->
+            <div
+              class="img-wrapper"
+              style="flex: 1"
+              onclick="
+                openLightbox(
+                  'img_v3_0215v_130f60d1-f973-4e93-931e-807df07aa9ix.jpg',
+                )
+              "
+            >
+              <img
+                src="img_v3_0215v_130f60d1-f973-4e93-931e-807df07aa9ix.jpg"
+                alt="Bảng điều khiển tồn kho"
+              />
+              <div class="zoom-hint">🔍 Click để phóng to Bảng Điều Khiển</div>
+            </div>
+
+            <!-- ẢNH 2: Cảnh báo -->
+            <div
+              class="img-wrapper"
+              style="flex: 1"
+              onclick="
+                openLightbox(
+                  'img_v3_0215v_130f60d1-f973-4e93-931e-807df07aa9io.jpg',
+                )
+              "
+            >
+              <img
+                src="img_v3_0215v_130f60d1-f973-4e93-931e-807df07aa9io.jpg"
+                alt="Cảnh báo tồn kho thấp"
+              />
+              <div class="zoom-hint">🔍 Click để phóng to Cảnh Báo</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SLIDE 6: LIVE DEMO -->
+      <div class="slide">
+        <div class="title-wrapper">
+          <div class="subtitle">Tương Tác Trực Tiếp (Live Demo)</div>
+          <div class="title">Kiểm Thử Logic Khóa Tồn Kho</div>
+        </div>
+        <div class="content-area">
+          <div class="demo-container">
+            <div class="stats-row">
+              <div class="stat-box blue">
+                <p>Tồn Kho Vật Lý (Thực tế)</p>
+                <h2 id="val-physical">100</h2>
+              </div>
+              <div class="stat-box orange">
+                <p>Đang Giữ Chỗ (15 Phút)</p>
+                <h2 id="val-holding" style="color: #fbbf24">0</h2>
+              </div>
+              <div class="stat-box green">
+                <p>Còn Khả Dụng (Để bán tiếp)</p>
+                <h2 id="val-available" style="color: #34d399">100</h2>
+              </div>
+            </div>
+
+            <div class="control-row">
+              <span style="color: #fff; font-size: 16px; font-weight: 600"
+                >Khách muốn mua:</span
+              >
+              <input type="number" id="input-qty" value="10" min="1" />
+              <button class="btn btn-lock" onclick="simLock()">
+                🔒 Đặt Hàng (Khóa)
+              </button>
+              <button class="btn btn-confirm" onclick="simConfirm()">
+                ✅ Đã Thanh Toán
+              </button>
+              <button class="btn btn-release" onclick="simRelease()">
+                ❌ Hủy / Hết hạn
+              </button>
+            </div>
+
+            <div class="log-area" id="log-box">
+              <div style="color: #64748b">
+                [Hệ Thống Sẵn Sàng] Tồn kho đầu kỳ: 100 SP.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SLIDE 6: KẾT LUẬN -->
+      <div class="slide">
+        <div
+          class="title-wrapper"
+          style="text-align: center; border: none; margin-bottom: 0"
+        >
+          <div class="subtitle">Tổng Kết Đánh Giá</div>
+          <div class="title" style="font-size: 48px">
+            Hệ Thống Đã Sẵn Sàng Vận Hành
+          </div>
+        </div>
+        <div
+          class="content-area"
+          style="
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+          "
+        >
+          <div style="max-width: 800px">
+            <p
+              style="
+                font-size: 20px;
+                line-height: 1.8;
+                color: var(--text-muted);
+                margin-bottom: 40px;
+              "
+            >
+              Bằng việc bóc tách rõ ràng giữa <b>tồn kho vật lý</b> và
+              <b>phiên khóa tạm</b>, hệ thống đảm bảo tính chính xác tuyệt đối,
+              ngăn chặn triệt để rủi ro sập dữ liệu và mang lại trải nghiệm liền
+              mạch cho hàng triệu người dùng trong các đợt Flash Sale.
+            </p>
+            <div
+              style="
+                display: inline-block;
+                background: var(--text-main);
+                color: white;
+                padding: 16px 40px;
+                border-radius: 100px;
+                font-size: 18px;
+                font-weight: 700;
+              "
+            >
+              Cảm Ơn Thầy Cô Đã Lắng Nghe!
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <button class="nav-btn" id="btn-prev" onclick="prevSlide()">
+        ◀ Slide Trước
+      </button>
+      <div class="tip">
+        Sử dụng phím <b>Mũi tên phải (➔)</b> hoặc <b>Space</b> để điều hướng
+      </div>
+      <button class="nav-btn" id="btn-next" onclick="nextSlide()">
+        Slide Tiếp ▶
+      </button>
+    </footer>
+
+    <script>
+      /* =========================================
+       1. ĐIỀU KHIỂN SLIDE 
+       ========================================= */
+      let currentSlide = 0;
+      const slides = document.querySelectorAll(".slide");
+      const indicator = document.getElementById("progress");
+      const btnPrev = document.getElementById("btn-prev");
+      const btnNext = document.getElementById("btn-next");
+
+      function updateSlide() {
+        slides.forEach((s, idx) =>
+          s.classList.toggle("active", idx === currentSlide),
+        );
+        indicator.textContent = `${currentSlide + 1} / ${slides.length}`;
+        btnPrev.disabled = currentSlide === 0;
+        btnNext.disabled = currentSlide === slides.length - 1;
+      }
+
+      function nextSlide() {
+        if (currentSlide < slides.length - 1) {
+          currentSlide++;
+          updateSlide();
+        }
+      }
+      function prevSlide() {
+        if (currentSlide > 0) {
+          currentSlide--;
+          updateSlide();
+        }
+      }
+
+      window.addEventListener("keydown", (e) => {
+        if (document.activeElement.id === "input-qty") return;
+
+        if (e.code === "ArrowRight" || e.code === "Space") {
+          e.preventDefault();
+          nextSlide();
+        }
+        if (e.code === "ArrowLeft") {
+          e.preventDefault();
+          prevSlide();
+        }
+        if (e.code === "Escape") {
+          closeLightbox();
+        }
+      });
+      updateSlide();
+
+      /* =========================================
+       2. LIGHTBOX (Phóng to ảnh)
+       ========================================= */
+      const lightbox = document.getElementById("lightbox");
+      const lightboxImg = document.getElementById("lightbox-img");
+
+      function openLightbox(imgSrc) {
+        lightboxImg.src = imgSrc;
+        lightbox.style.display = "flex";
+        setTimeout(() => (lightbox.style.opacity = "1"), 10);
+      }
+
+      function closeLightbox() {
+        lightbox.style.opacity = "0";
+        setTimeout(() => (lightbox.style.display = "none"), 300);
+      }
+
+      /* =========================================
+       3. LOGIC LIVE DEMO TỒN KHO 
+       ========================================= */
+      let stockPhysical = 100;
+      let stockHolding = 0;
+
+      const elPhys = document.getElementById("val-physical");
+      const elHold = document.getElementById("val-holding");
+      const elAvail = document.getElementById("val-available");
+      const elLog = document.getElementById("log-box");
+      const elInput = document.getElementById("input-qty");
+
+      function logMsg(msg, color) {
+        const time = new Date().toLocaleTimeString();
+        const div = document.createElement("div");
+        div.style.color = color;
+        div.style.marginBottom = "8px";
+        div.innerHTML = `[${time}] ${msg}`;
+        elLog.prepend(div);
+      }
+
+      function updateUI() {
+        elPhys.textContent = stockPhysical;
+        elHold.textContent = stockHolding;
+        elAvail.textContent = stockPhysical - stockHolding;
+      }
+
+      function getQty() {
+        const val = parseInt(elInput.value);
+        if (isNaN(val) || val <= 0) {
+          alert("Vui lòng nhập số lượng hợp lệ!");
+          return 0;
+        }
+        return val;
+      }
+
+      function simLock() {
+        const qty = getQty();
+        if (qty === 0) return;
+        const available = stockPhysical - stockHolding;
+
+        if (qty > available) {
+          logMsg(
+            `❌ TỪ CHỐI BÁN: Khách muốn mua ${qty} nhưng khả dụng chỉ còn ${available}. Đã chặn Over-selling thành công!`,
+            "#f87171",
+          );
+        } else {
+          stockHolding += qty;
+          logMsg(
+            `🔒 ĐẶT HÀNG: Đã khóa tạm ${qty} SP. Bắt đầu đếm ngược 15 phút...`,
+            "#fbbf24",
+          );
+          updateUI();
+        }
+      }
+
+      function simConfirm() {
+        const qty = getQty();
+        if (qty === 0) return;
+        if (qty > stockHolding) {
+          logMsg(
+            `⚠️ LỖI: Không thể thanh toán ${qty} SP vì hệ thống chỉ đang tạm giữ ${stockHolding} SP.`,
+            "#f87171",
+          );
+        } else {
+          stockHolding -= qty;
+          stockPhysical -= qty;
+          logMsg(
+            `✅ THANH TOÁN THÀNH CÔNG: Đã trừ kho vật lý thật sự ${qty} SP.`,
+            "#34d399",
+          );
+          updateUI();
+        }
+      }
+
+      function simRelease() {
+        const qty = getQty();
+        if (qty === 0) return;
+        if (qty > stockHolding) {
+          logMsg(
+            `⚠️ LỖI: Không thể hủy ${qty} SP vì chỉ đang tạm giữ ${stockHolding} SP.`,
+            "#f87171",
+          );
+        } else {
+          stockHolding -= qty;
+          logMsg(
+            `⏳ HẾT HẠN/HỦY: Đã giải phóng ${qty} SP nhả lại ra thị trường.`,
+            "#94a3b8",
+          );
+          updateUI();
+        }
+      }
+    </script>
+  </body>
+</html>
